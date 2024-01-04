@@ -178,4 +178,4 @@ class GUI:
         messagebox.showinfo(title='Under Maintenance', message='This feature is currently under maintenance')
         response = messagebox.askquestion(title='See Source Code?', message='Would you like to view the source code on GitHub?')
         if response == 'yes':
-            webbrowser.open('https://github.com/tpauldike/OIBSIP')
+            webbrowser.open('https://github.com/tpauldike/CodeClauseInternship')
