@@ -25,11 +25,22 @@ class Caculator():
     
     def square_root_of(self, number):
         for char in str(number):
-            if char in '+-÷×^*/':
-                return 'Error'
-        self.result = math.sqrt(int(number) | float(number))
+            if char not in '+-÷×^*/':
+                if Caculator.int_value(number):
+                    self.result = math.sqrt(int(number))
+                else:
+                    self.result = math.sqrt(float(number))
+        ans = str(self.result)
+        if len(ans) > 2  and str(ans)[-2] == '.' and str(ans)[-1] == '0':
+           self.result = ans[:-2]
         return self.result
- 
+
+    def int_value(value):
+        try:
+            int(value)
+        except ValueError:
+            return False
+
     def clear_dot_zero(self, answer):
         answer = str(answer)[:-2]
         return answer

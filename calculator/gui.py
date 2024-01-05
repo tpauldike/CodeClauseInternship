@@ -114,7 +114,7 @@ class GUI:
         self.sqrd_btn.grid(row=6, column=0, sticky='news')
         self.powr_btn = tk.Button(self.btn_container, text='^', cnf=self.math_btn_cnf, command=lambda: self.display_once('^'))
         self.powr_btn.grid(row=6, column=1, sticky='news')
-        self.sqrt_btn = tk.Button(self.btn_container, text='√', cnf=self.math_btn_cnf)
+        self.sqrt_btn = tk.Button(self.btn_container, text='√', cnf=self.math_btn_cnf, command=self.square_root_of)
         self.sqrt_btn.grid(row=6, column=2, sticky='news')
         
     def display_char(self, char):
@@ -190,7 +190,12 @@ class GUI:
     def show_last_ans(self):
         '''Displays the very last answer produced'''
         current_str = self.display.get()
-        if current_str == '0' or current_str[-1] in '+-*/^÷×':
+        if self.last_answer == current_str:
+            return
+        elif current_str == '0':
+            self.display.delete(0, tk.END)
+            self.display.insert(tk.END, self.last_answer)
+        elif current_str[-1] in '+-*/^÷×':
             self.display.insert(tk.END, self.last_answer)
         else:
             messagebox.showwarning(title='Invalid Operation', message='There should be +, -, ÷ or × before answer')
@@ -203,6 +208,11 @@ class GUI:
             
     def evaluate(self):
         current_str = self.display.get()
+        for char in current_str:
+            if char not in '0123456789+-*/^.÷×':
+                messagebox.showwarning(title='Invalid Input', message='Your input is not valid')
+                self.clear()
+                return
         self.last_answer = Caculator().execute(current_str)
         answer = str(self.last_answer)
         if answer and len(answer) > 2:
@@ -218,9 +228,41 @@ class GUI:
         self.last_answer = Caculator.square_of(self, self.display.get())
         self.display.delete(0, tk.END)
         self.display.insert(tk.END, self.last_answer)
-           
+
+    def square_root_of(self):
+        current_str = self.display.get()
+        if current_str == '0':
+            messagebox.showinfo(title='No Number Entered', message='Enter the number first, whose square root you wish to find')
+            return
+        for char in current_str:
+            if char in '+-÷×^*/' or current_str[-1] == '.':
+                messagebox.showerror(title='Invalid Operation', message='Enter a valid number, with no arithmetical symbol')
+                return
+        self.last_answer = Caculator.square_root_of(self, current_str)        
+        self.display.delete(0, tk.END)
+        self.display.insert(tk.END, self.last_answer)
+              
     def check_valid_char(self, event):
         allowed_chars = set('0123456789+-*/^.÷×')
-        print(event)
-        # if event.char not in allowed_chars:
-        #     return 'break'
+        self.count = 0
+        allowed_keys = ['Shift_L', 'Shift_R' 'Control_L', 'Control_R', 'Alt_L', 'Alt_R', 'Tab', 'Caps_Lock', 'Backspace', 'space', 'Return', 'Escape']
+
+        if event.keysym == 'Return':
+            self.evaluate()
+            return
+        elif event.keysym == 'BackSpace':
+            self.delete_last_char()
+            return
+        elif event.keysym == 'Escape':
+            self.clear()
+        elif event.keysym == 'Alt_R':
+            self.show_last_ans()
+
+        if event.char not in allowed_chars and event.keysym not in allowed_keys :
+            return
+        if event.char in '+-÷×*/':
+            self.display_sign(event.char)
+        elif event.char in '0123456789':
+            self.display_char(event.char)
+        elif event.char in '.^':
+            self.display_once(event.char)
