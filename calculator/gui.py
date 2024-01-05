@@ -189,8 +189,11 @@ class GUI:
 
     def show_last_ans(self):
         '''Displays the very last answer produced'''
-        self.display.delete(0, tk.END)
-        self.display.insert(tk.END, self.last_answer)
+        current_str = self.display.get()
+        if current_str == '0' or current_str[-1] in '+-*/^÷×':
+            self.display.insert(tk.END, self.last_answer)
+        else:
+            messagebox.showwarning(title='Invalid Operation', message='There should be +, -, ÷ or × before answer')
 
     def display_info(self):
         messagebox.showinfo(title='Under Maintenance', message='This feature is currently under maintenance')
@@ -202,17 +205,22 @@ class GUI:
         current_str = self.display.get()
         self.last_answer = Caculator().execute(current_str)
         answer = str(self.last_answer)
-        if answer[-2] == '.' and answer[-1] == '0':
-            self.last_answer = Caculator.clear_dot_zero(self, self.last_answer)
+        if answer and len(answer) > 2:
+            if answer[-2] == '.' and answer[-1] == '0':
+               self.last_answer = Caculator.clear_dot_zero(self, self.last_answer)
         self.display.delete(0, tk.END)
         self.display.insert(tk.END, self.last_answer)
         
     def square(self):
+        current_str = self.display.get()
+        if str(current_str)[-1] in '+-÷×^*/.':
+            return
         self.last_answer = Caculator.square_of(self, self.display.get())
         self.display.delete(0, tk.END)
         self.display.insert(tk.END, self.last_answer)
            
     def check_valid_char(self, event):
         allowed_chars = set('0123456789+-*/^.÷×')
-        if event.char not in allowed_chars:
-            return 'break'
+        print(event)
+        # if event.char not in allowed_chars:
+        #     return 'break'
