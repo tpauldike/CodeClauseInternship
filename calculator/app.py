@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from gui import GUI
 
-class Calculator(GUI):
+class App(GUI):
     pass
 
-Calculator()
+App()

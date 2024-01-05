@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 import webbrowser
+from arithmetics import Caculator
+import re
 
 class GUI:
     '''Instatiates the Graphical User Interface of a calculator'''
@@ -30,12 +32,12 @@ class GUI:
         self.display = tk.Entry(self.main_frame, font=('Garamond', 20), justify='right', highlightthickness=0, readonlybackground=self.display_bg, bg=self.display_bg, fg=self.color3, state='readonly')
         self.display.pack(pady=20, padx=10, fill='none')
         self.last_answer = '0'
-        self.current_char = '0'
+        self.default_display = '0'
         
         # Buttons at the top
         self.top_btn_cont = tk.Label(self.main_frame, bg=self.background_color)
         self.top_btn_cont.pack()
-        self.power_btn = tk.Button(self.top_btn_cont, text='on', cnf=self.top_btn_cnf, command=self.power)
+        self.power_btn = tk.Button(self.top_btn_cont, text='on', cnf=self.top_btn_cnf, command=self.power_switch)
         self.power_btn.grid(row=0, column=0)
         self.answer_btn = tk.Button(self.top_btn_cont, text='answer', cnf=self.top_btn_cnf, command=self.show_last_ans)
         self.answer_btn.grid(row=0, column=1)
@@ -56,7 +58,8 @@ class GUI:
         self.create_math_btns()
 
         # Power on the calculator and start the infinite loop        
-        self.power()
+        self.power_switch()
+        self.root.bind('<KeyPress>', self.check_valid_char)
         self.root.mainloop()
         
     def centralize_window(self, window: object, width: int, height: int):
@@ -92,43 +95,46 @@ class GUI:
         
     def create_math_btns(self):
         '''Creates the buttons with mathematical expressions'''
-        self.plus_btn = tk.Button(self.btn_container, text='+', cnf=self.math_btn_cnf)
+        self.plus_btn = tk.Button(self.btn_container, text='+', cnf=self.math_btn_cnf, command=lambda: self.display_sign('+'))
         self.plus_btn.grid(row=3, column=0, sticky='news')
-        self.minus_btn = tk.Button(self.btn_container, text='-', cnf=self.math_btn_cnf)
+        self.minus_btn = tk.Button(self.btn_container, text='-', cnf=self.math_btn_cnf, command=lambda: self.display_sign('-'))
         self.minus_btn.grid(row=3, column=1, sticky='news')
-        self.times_btn = tk.Button(self.btn_container, text='×', cnf=self.math_btn_cnf)
+        self.times_btn = tk.Button(self.btn_container, text='×', cnf=self.math_btn_cnf, command=lambda: self.display_sign('×'))
         self.times_btn.grid(row=4, column=0, sticky='news')
-        self.div_btn = tk.Button(self.btn_container, text='÷', cnf=self.math_btn_cnf)
+        self.div_btn = tk.Button(self.btn_container, text='÷', cnf=self.math_btn_cnf, command=lambda: self.display_sign('÷'))
         self.div_btn.grid(row=4, column=1, sticky='news')
-        self.dot_btn = tk.Button(self.btn_container, text='.', cnf=self.math_btn_cnf, command=self.display_dot)
+        self.dot_btn = tk.Button(self.btn_container, text='.', cnf=self.math_btn_cnf, command=lambda: self.display_once('.'))
         self.dot_btn.grid(row=5, column=0, sticky='news')
         self.negative_btn = tk.Button(self.btn_container, text='±', cnf=self.math_btn_cnf, command=self.display_minus)
         self.negative_btn.grid(row=5, column=1, sticky='news')
-        self.equals_btn = tk.Button(self.btn_container, text='=', bg=self.color2, font=('Cambria', 15), activebackground=self.color2, activeforeground=self.faded_black)
+        self.equals_btn = tk.Button(self.btn_container, text='=', bg=self.color2, font=('Cambria', 15), activebackground=self.color2, activeforeground=self.faded_black, command=self.evaluate)
         self.equals_btn.grid(row=4, column=2, rowspan=2, sticky='news')
         
-        self.sqrd_btn = tk.Button(self.btn_container, text='x²', cnf=self.math_btn_cnf)
+        self.sqrd_btn = tk.Button(self.btn_container, text='x²', cnf=self.math_btn_cnf, command=self.square)
         self.sqrd_btn.grid(row=6, column=0, sticky='news')
-        self.powr_btn = tk.Button(self.btn_container, text='^', cnf=self.math_btn_cnf)
+        self.powr_btn = tk.Button(self.btn_container, text='^', cnf=self.math_btn_cnf, command=lambda: self.display_once('^'))
         self.powr_btn.grid(row=6, column=1, sticky='news')
         self.sqrt_btn = tk.Button(self.btn_container, text='√', cnf=self.math_btn_cnf)
         self.sqrt_btn.grid(row=6, column=2, sticky='news')
         
     def display_char(self, char):
         '''Displays char on the calculator's screen'''
-        current_char = self.display.get()
-        if current_char:
-            if current_char == '0':
+        current_str = self.display.get()
+        if current_str:
+            if current_str == '0' or str(self.last_answer) == current_str:
                 self.display.delete(0, tk.END)
         self.display.insert(tk.END, char)
         
-    def display_dot(self):
-        '''Displays dot (.) if there's none displayed already, enabling float input'''
+    def display_once(self, char):
+        '''Displays a character only once, if it is not already in the substring delimited by "+-÷×"'''
         current_str = self.display.get()
-        for i in current_str:
-            if i == '.':
+        last_substring = re.split('[+|\-|÷|×]', current_str)[-1]
+        if (char == '^' and current_str == '0') or (current_str[-1] in '+-÷×'):
+            return
+        for i in last_substring:
+            if i == char:
                 return
-        self.display.insert(tk.END, '.')
+        self.display.insert(tk.END, char)
                 
     def display_minus(self):
         '''Toggles between displaying minus before the number and taking it off'''
@@ -141,6 +147,18 @@ class GUI:
             else:
                 self.display.delete(0, tk.END)
                 self.display.insert(tk.END, current_str[1:])
+                
+    def display_sign(self, sign):
+        current_str = self.display.get()
+        if current_str[-1] in '+-÷×.^':
+            self.delete_last_char()
+        elif current_str == '0':
+            return
+        if sign == '/':
+            sign = '÷'
+        elif sign == '*':
+            sign = '×'
+        self.display.insert(tk.END, sign)
         
     def clear(self):
         '''Clears the calculator's screen and displays zero (0)'''
@@ -156,15 +174,15 @@ class GUI:
             if len(current_str) == 1:
                 new_str = '0'
             self.display_char(new_str)
-    
-    def power(self):
+            
+    def power_switch(self):
         '''Powers the caculator on if off, and off if on, with the option to exit the app'''
         if self.display.cget('state') == 'normal' and self.power_btn.cget('text') == 'off':
             self.display.delete(0, tk.END)
             self.display.config(state='readonly')
             self.power_btn.config(text='on', activeforeground='green')
         else:
-            self.current_char = '0'
+            self.default_display = '0'
             self.display.config(state='normal')
             self.power_btn.config(text='off', activeforeground='red', activebackground='white')
             self.clear()
@@ -179,3 +197,20 @@ class GUI:
         response = messagebox.askquestion(title='See Source Code?', message='Would you like to view the source code on GitHub?')
         if response == 'yes':
             webbrowser.open('https://github.com/tpauldike/CodeClauseInternship')
+            
+    def evaluate(self):
+        current_str = self.display.get()
+        self.last_answer = Caculator().execute(current_str)
+        self.last_answer = Caculator.clear_dot_zero(self, self.last_answer)
+        self.display.delete(0, tk.END)
+        self.display.insert(tk.END, self.last_answer)
+        
+    def square(self):
+        self.last_answer = Caculator.square_of(self, self.display.get())
+        self.display.delete(0, tk.END)
+        self.display.insert(tk.END, self.last_answer)
+           
+    def check_valid_char(self, event):
+        allowed_chars = set('0123456789+-*/^.÷×')
+        if event.char not in allowed_chars:
+            return 'break'
