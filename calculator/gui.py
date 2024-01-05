@@ -201,7 +201,9 @@ class GUI:
     def evaluate(self):
         current_str = self.display.get()
         self.last_answer = Caculator().execute(current_str)
-        self.last_answer = Caculator.clear_dot_zero(self, self.last_answer)
+        answer = str(self.last_answer)
+        if answer[-2] == '.' and answer[-1] == '0':
+            self.last_answer = Caculator.clear_dot_zero(self, self.last_answer)
         self.display.delete(0, tk.END)
         self.display.insert(tk.END, self.last_answer)
         

@@ -31,7 +31,5 @@ class Caculator():
         return self.result
  
     def clear_dot_zero(self, answer):
-        answer = str(answer)
-        if answer[-2] == '.' and answer[-1] == '0':
-            answer = answer[:-2]
-            return answer
+        answer = str(answer)[:-2]
+        return answer
