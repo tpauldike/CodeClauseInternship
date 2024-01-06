@@ -20,6 +20,13 @@ class GUI:
         self.num_btn_cnf = {'width': 6, 'bg': self.color4, 'fg': self.background_color, 'font': ('Lucida', 16), 'activebackground': self.display_bg, 'activeforeground': self.color3}
         self.math_btn_cnf = {'width': 8, 'bg': self.background_color, 'fg': self.color3, 'font': ('Cambria', 12, 'italic'), 'activebackground': self.display_bg, 'activeforeground': self.color3}
         
+        self.help_text = """
+        \tPress:
+        \t  Enter for 'equals',  Esc for 'clear',
+        \t  Alt/Meta (right) for 'answer',  / for '÷',
+        \t  Backspace for '←',  Shift+8 (*) for '×'
+        """
+        
         self.root = tk.Tk()
         self.root.title('Calculator')
         self.root.config(bg='#000000')
@@ -56,7 +63,9 @@ class GUI:
         self.btn_container.rowconfigure(3, weight=1)
         self.create_number_btns()
         self.create_math_btns()
-
+        self.keys_help = tk.Label(self.main_frame, bg=self.background_color, fg=self.color3, text=self.help_text, justify='left', font=('Arial', 10, 'italic'))
+        self.keys_help.pack(anchor='w')
+        
         # Power on the calculator and start the infinite loop        
         self.power_switch()
         self.root.bind('<KeyPress>', self.check_valid_char)
