@@ -1,5 +1,10 @@
 # Calculator in `Python`
-This is a simple calculator built with `Python`, that performs more than basic arithmetic operations, such as addition, subtraction, multiplication and division of natural numbers.
+![calculator_in_python](https://github.com/tpauldike/rough_work/blob/main/screenshots/calculator.png)
+
+## About the App
+This is a deskstop application, a simple calculator built with `Python Tkinter`, that performs more than basic arithmetic operations, such as addition, subtraction, multiplication and division of natural numbers.
+
+It was developed and tested on Ubuntu 22.04.2
 
 ## Features of the Calculator
 It has the following features:
