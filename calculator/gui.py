@@ -235,16 +235,13 @@ class GUI:
     def show_last_ans(self):
         '''Displays the very last answer produced'''
         current_str = self.display.get()
-        if self.last_answer == current_str:
+        if str(self.last_answer) == current_str or str(self.last_answer) == '0':
             return
-        elif current_str == '0':
-            self.display.delete(0, tk.END)
-            self.display.insert(tk.END, self.last_answer)
         elif current_str[-1] in '+-*/^÷×':
             self.display.insert(tk.END, self.last_answer)
         else:
             messagebox.showwarning(
-                title='Invalid Operation', message='There should be +, -, ÷ or × before answer')
+                title='Invalid Operation', message='Enter +, -, ÷, × or ^ before you press answer')
 
     def display_info(self):
         messagebox.showinfo(title='Under Maintenance',
